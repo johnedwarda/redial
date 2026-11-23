@@ -10,13 +10,14 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
 <style>
-  :root { --bg: #E8ECF1; --ink: #14171C; --muted: #5A6170; --line: rgba(20,23,28,0.14); --on: #0E6B66; }
+  :root { --pill: #3B2BEF; --on-pill: #FFFFFF; --bg: #E8ECF1; --ink: #14171C; --muted: #5A6170; --line: rgba(20,23,28,0.14); --on: #0E6B66; }
   * { box-sizing: border-box; }
   html, body { margin: 0; height: 100%; }
   body { background: var(--bg); color: var(--ink); font-family: Inter, system-ui, sans-serif; display: flex; flex-direction: column; align-items: center; overflow-x: hidden; }
   header { width: 100%; flex: none; padding: 16px 20px; display: flex; align-items: center; justify-content: flex-start; gap: 10px; }
   header .je { width: 24px; height: 29px; display: block; flex: none; }
-  h1 { margin: 0; font-size: 17px; font-weight: 600; letter-spacing: -0.01em; }
+  h1 { margin: 0; font-size: 17px; font-weight: 600; letter-spacing: -0.01em; white-space: nowrap; min-width: 0; }
+  @media (max-width: 389px) { h1 .ip { display: none; } }
   h1 span { color: var(--muted); font-weight: 400; }
   main { flex: 1 1 auto; min-height: 0; width: 100%; display: flex; justify-content: center; align-items: flex-start; gap: 40px; padding: 16px 0 24px; }
   figure { margin: 0; display: flex; flex-direction: column; align-items: center; gap: 10px; }
@@ -27,13 +28,17 @@
   body.phone header { padding: 12px 16px; }
   body.phone h1 { font-size: 15px; }
   body.phone main { padding: 0 0 12px; align-items: center; }
-  #back { position: fixed; left: 0; top: 0; z-index: 5; width: 44px; height: 44px; margin: -22px 0 0 -22px; padding: 0; border: 0;
-    border-radius: 50%; background: #0B0D10; color: #F2F4F7; display: grid; place-items: center; cursor: pointer;
-    box-shadow: 0 0 0 3px var(--bg), 0 6px 16px rgba(20,23,28,0.25); -webkit-tap-highlight-color: transparent;
-    transition: transform 160ms cubic-bezier(0.2, 0.8, 0.2, 1); }
-  #back:hover { transform: scale(1.06); }
-  #back:active { transform: scale(0.94); }
-  #back:focus-visible { outline: 2px solid var(--on); outline-offset: 3px; }
+  #back { margin-left: auto; flex: none; display: inline-flex; align-items: center; gap: 12px; height: 44px; padding: 0 6px 0 18px; border: 0;
+    border-radius: 22px; background: color-mix(in srgb, var(--ink) 7%, transparent); color: var(--ink); font-family: inherit; font-size: 15px; font-weight: 500; line-height: 1;
+    cursor: pointer; -webkit-tap-highlight-color: transparent; transition: background 0.25s; }
+  #back:hover { background: color-mix(in srgb, var(--ink) 12%, transparent); }
+  #back .dot { width: 32px; height: 32px; border-radius: 16px; background: var(--pill); color: var(--on-pill); display: grid; place-items: center;
+    transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1); }
+  #back:hover .dot { transform: translateX(-3px); }
+  #back:active .dot { transform: scale(0.92); }
+  #back:focus-visible { outline: 2px solid var(--pill); outline-offset: 3px; }
+  @media (max-width: 519px) { #back { height: 40px; border-radius: 20px; padding: 0 6px 0 16px; gap: 10px; font-size: 14px; } #back .dot { width: 28px; height: 28px; border-radius: 14px; } }
+  @media (prefers-reduced-motion: reduce) { #back .dot { transition: none; } }
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.3.1/umd/react.production.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.3.1/umd/react-dom.production.min.js"></script>
@@ -42,14 +47,14 @@
 <body>
 <header>
   <svg class="je" viewBox="2 6 81 96" role="img" aria-label="John Edward"><path d="M14 34H26V84Q26 98 12 98H6V87H9Q14 87 14 82Z" fill="currentColor"/><circle cx="20" cy="18" r="7.5" fill="#6A5CFF"/><path d="M35.5 57H73.5A19 19 0 1 0 69.1 69.2" fill="none" stroke="currentColor" stroke-width="11"/></svg>
-  <h1>reDial <span>· interactive prototype</span></h1>
+  <h1>reDial <span>· <span class="ip">interactive </span>prototype</span></h1>
+  <button id="back" class="pill" type="button"><span>Back</span><span class="dot"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true"><path d="M11.5 7H2.5M6 3.5 2.5 7 6 10.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span></button>
 </header>
 <main>
   <figure id="main">
     <div class="frame"><div class="stage"><p class="status">Loading…</p></div></div>
   </figure>
 </main>
-<button id="back" type="button" aria-label="Back"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></button>
 <script>
   const W = 390, H = 844;
   const params = new URLSearchParams(location.search);
@@ -71,9 +76,6 @@
     frame.style.setProperty('--b', B * s + 'px');
     frame.style.setProperty('--r', RI * s + 'px');
     fig.querySelector('.stage').style.transform = 'scale(' + s + ')';
-    // back button centred on the frame's outer corner arc, at 45 degrees
-    const r = frame.getBoundingClientRect(), k = (RI - (RI + B) * Math.SQRT1_2) * s;
-    back.style.left = (r.left + k) + 'px'; back.style.top = (r.top + k) + 'px';
   }
   const back = document.getElementById('back');
   // Same as the browser's Back button; if this page was opened in a new tab, return to the page that linked here.

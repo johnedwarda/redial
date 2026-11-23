@@ -1,0 +1,717 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Phone — Interactive prototype</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap">
+<style>
+body{margin:0}
+a{color:#0E6B66}a:hover{color:#0A4F4B}
+.screen{animation:enter 280ms cubic-bezier(.2,.8,.2,1)}
+.fade{animation:fade 200ms ease-out}
+@keyframes enter{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+@keyframes fade{from{opacity:0}to{opacity:1}}
+.btn{border:0;background:transparent;font:inherit;color:inherit;cursor:pointer;padding:0;margin:0;text-align:left}
+.press{transition:transform 120ms ease, background-color 180ms ease, color 180ms ease}
+.press:active{transform:scale(.95)}
+.row:active{background:var(--surface)}
+.key{transition:background-color 160ms ease}
+.key:hover{background:#F8F9FA}
+.key:active{background:var(--surface)}
+.sc{scrollbar-width:thin;scrollbar-color:transparent transparent}
+.sc.on{scrollbar-color:rgba(20,23,28,.3) transparent}
+input::placeholder{color:#5A6170}
+.grain{background-image:url(blob/4eff388aa2343ca8fb7ad4f3767edf76.png);background-size:160px 160px}
+@media (prefers-reduced-motion: reduce){.screen,.fade{animation:none}.press:active{transform:none}}
+</style>
+</helmet>
+<div style="width: 390px; height: 844px; position: relative; overflow: hidden; background: #FFFFFF; color: #14171C; font-family: Inter, system-ui, sans-serif; --surface: #F2F3F5">
+
+  <!-- HOME -->
+  <sc-if value="{{isHome}}" hint-placeholder-val="{{true}}">
+    <div class="screen" style="position: absolute; inset: 0">
+      <header style="position: absolute; top: 0; left: 0; right: 0; z-index: 1; background: #FFFFFF; display: flex; align-items: center; justify-content: space-between; padding: 56px 12px 6px 24px">
+        <h1 style="margin: 0; font-size: 30px; font-weight: 700; letter-spacing: -0.025em">Recents</h1>
+        <button class="btn press" aria-label="More options" style="width: 44px; height: 44px; border-radius: 22px; display: flex; align-items: center; justify-content: center; color: #5A6170">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="12" cy="5" r="1.8"></circle><circle cx="12" cy="12" r="1.8"></circle><circle cx="12" cy="19" r="1.8"></circle></svg>
+        </button>
+      </header>
+      <div class="sc {{scrollCls}}" onScroll="{{onScroll}}" style="position: absolute; top: 106px; left: 0; right: 0; bottom: 0; overflow-y: auto; padding-bottom: 230px">
+        <sc-for list="{{groups}}" as="g" hint-placeholder-count="3">
+          <section aria-label="{{g.label}}">
+            <h2 style="margin: 0; padding: 12px 24px 4px; font-size: 12px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: #5A6170">{{g.label}}</h2>
+            <ul style="list-style: none; margin: 0; padding: 0">
+              <sc-for list="{{g.rows}}" as="r" hint-placeholder-count="3">
+                <li style="display: flex; align-items: center; padding-right: 12px">
+                  <button class="btn row" onClick="{{r.call}}" aria-label="Call {{r.name}}" style="flex: 1; min-width: 0; display: flex; align-items: center; gap: 14px; padding: 9px 8px 9px 24px; border-radius: 0 18px 18px 0">
+                    <span style="position: relative; width: 44px; height: 44px; flex-shrink: 0">
+                      <span style="width: 44px; height: 44px; border-radius: 22px; overflow: hidden; display: flex; align-items: center; justify-content: center; background: #F2F3F5; color: #5A6170">
+                        <sc-if value="{{r.hasPhoto}}" hint-placeholder-val="{{true}}"><img src="{{r.photo}}" alt="" width="44" height="44" style="width: 44px; height: 44px; object-fit: cover; display: block"></sc-if>
+                        <sc-if value="{{r.noPhoto}}" hint-placeholder-val="{{false}}"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="8" r="4"></circle><path d="M4 21a8 8 0 0 1 16 0"></path></svg></sc-if>
+                      </span>
+                      <sc-if value="{{r.missed}}" hint-placeholder-val="{{false}}">
+                        <span style="position: absolute; right: -1px; bottom: -1px; width: 13px; height: 13px; border-radius: 7px; background: #C42B2B; box-shadow: 0 0 0 2.5px #FFFFFF"></span>
+                      </sc-if>
+                    </span>
+                    <span style="flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 3px">
+                      <span style="font-size: 16px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{r.name}}</span>
+                      <span style="display: flex; align-items: center; gap: 6px; font-size: 13px; color: #5A6170">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="{{r.arrowColor}}" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="{{r.arrow}}"></path></svg>
+                        {{r.meta}}
+                      </span>
+                    </span>
+                  </button>
+                  <button class="btn press" onClick="{{r.details}}" aria-label="Details for {{r.name}}" style="width: 44px; height: 44px; flex-shrink: 0; border-radius: 22px; color: #5A6170; display: flex; align-items: center; justify-content: center">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 6 6 6-6 6"></path></svg>
+                  </button>
+                </li>
+              </sc-for>
+            </ul>
+          </section>
+        </sc-for>
+      </div>
+
+      <section aria-label="Favourites and contacts" ref="{{setSheet}}" style="position: absolute; left: 0; right: 0; top: 0; height: 844px; z-index: 3; background: rgba(222, 231, 242, 0.9); backdrop-filter: blur(8px) saturate(1.4); -webkit-backdrop-filter: blur(8px) saturate(1.4); border-radius: 52px 52px 0 0; box-shadow: 0 -10px 36px rgba(16, 24, 40, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.9), inset 0 0 0 1px rgba(255, 255, 255, 0.35); transform: translate3d(0, {{sheetY}}px, 0); will-change: transform; display: flex; flex-direction: column">
+        <div aria-hidden="true" class="grain" style="position: absolute; inset: 0; border-radius: inherit; opacity: 0.4; pointer-events: none"></div>
+        <div aria-hidden="true" ref="{{setSolid}}" style="position: absolute; inset: 0; border-radius: inherit; background: #E6ECF4; opacity: {{solidOpacity}}; pointer-events: none; will-change: opacity"></div>
+        <div onPointerDown="{{onDown}}" onClickCapture="{{guardClick}}" style="position: relative; height: 102px; flex-shrink: 0; box-sizing: border-box; padding: 26px 26px 0; display: flex; flex-direction: column; touch-action: none; user-select: none">
+          <button class="btn" onClick="{{toggleSheet}}" aria-label="{{sheetLabel}}" aria-expanded="{{sheetOpenAttr}}" style="position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 120px; height: 26px; display: flex; align-items: center; justify-content: center">
+            <span ref="{{setHandle}}" style="width: 40px; height: 5px; border-radius: 3px; background-color: #B6BCC6; transition: background-color 150ms"></span>
+          </button>
+        <div style="display: flex; align-items: center; height: 52px; border-radius: 26px; background: #FFFFFF; box-shadow: 0 1px 2px rgba(30, 45, 70, 0.06)">
+          <label style="flex: 1; min-width: 0; height: 100%; display: flex; align-items: center; gap: 10px; padding: 0 6px 0 18px; color: #5A6170">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true" style="flex-shrink: 0"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-3.5-3.5"></path></svg>
+            <span style="position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0)">Search contacts</span>
+            <input type="text" ref="{{setInput}}" value="{{query}}" onChange="{{onQuery}}" onFocus="{{onSearchFocus}}" placeholder="Search contacts" autocomplete="off" style="flex: 1; min-width: 0; height: 100%; border: 0; background: transparent; font: inherit; font-size: 15px; color: #14171C; outline: none; caret-color: {{A}}">
+            <sc-if value="{{hasQuery}}" hint-placeholder-val="{{false}}">
+              <button class="btn press" onClick="{{clearQuery}}" aria-label="Clear search" style="width: 32px; height: 32px; flex-shrink: 0; border-radius: 16px; display: flex; align-items: center; justify-content: center; color: #5A6170">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="m15 9-6 6M9 9l6 6"></path></svg>
+              </button>
+            </sc-if>
+          </label>
+          <span aria-hidden="true" style="width: 1px; height: 24px; background: #E4E6EA"></span>
+          <button class="btn press" onClick="{{toDialer}}" aria-label="Open dialpad" style="width: 60px; height: 100%; display: flex; align-items: center; justify-content: center; color: {{A}}">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="6" cy="5" r="1.7"></circle><circle cx="12" cy="5" r="1.7"></circle><circle cx="18" cy="5" r="1.7"></circle><circle cx="6" cy="11" r="1.7"></circle><circle cx="12" cy="11" r="1.7"></circle><circle cx="18" cy="11" r="1.7"></circle><circle cx="6" cy="17" r="1.7"></circle><circle cx="12" cy="17" r="1.7"></circle><circle cx="18" cy="17" r="1.7"></circle><circle cx="12" cy="22" r="1.5"></circle></svg>
+          </button>
+        </div>
+        </div>
+        <div class="sc {{scrollCls}}" ref="{{setList}}" onScroll="{{onScroll}}" onPointerDown="{{onListDown}}" onClickCapture="{{guardClick}}" style="position: relative; flex: 1; min-height: 0; overflow-y: {{listOverflow}}; touch-action: {{listTouch}}; padding-bottom: 40px">
+        <sc-if value="{{notSearching}}" hint-placeholder-val="{{true}}">
+        <div style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 21px 8px; padding: 0 16px 8px">
+          <sc-for list="{{favs}}" as="f" hint-placeholder-count="8">
+            <button class="btn press" onClick="{{f.call}}" aria-label="Call {{f.name}}" style="display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 2px 0">
+              <span style="width: 64px; height: 64px; border-radius: 32px; overflow: hidden; display: block; box-shadow: {{f.ring}}"><img src="{{f.photo}}" alt="" width="64" height="64" style="width: 64px; height: 64px; object-fit: cover; display: block"></span>
+              <span style="font-size: 13px; font-weight: 500">{{f.first}}</span>
+            </button>
+          </sc-for>
+        </div>
+          <h2 style="margin: 0; padding: 14px 24px 4px; font-size: 12px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: #5A6170">All contacts</h2>
+        </sc-if>
+        <sc-if value="{{noResults}}" hint-placeholder-val="{{false}}">
+          <p style="margin: 0; padding: 24px; text-align: center; font-size: 15px; color: #5A6170">No contacts match “{{query}}”</p>
+        </sc-if>
+        <ul style="list-style: none; margin: 0; padding: 0">
+          <sc-for list="{{rows}}" as="c" hint-placeholder-count="10">
+            <li>
+              <sc-if value="{{c.isHead}}" hint-placeholder-val="{{false}}">
+                <h2 style="margin: 0; padding: 14px 24px 4px; font-size: 13px; font-weight: 700; color: {{A}}">{{c.letter}}</h2>
+              </sc-if>
+              <sc-if value="{{c.isRow}}" hint-placeholder-val="{{true}}">
+                <button class="btn row" onClick="{{c.call}}" aria-label="Call {{c.name}}" style="width: 100%; display: flex; align-items: center; gap: 14px; padding: 8px 24px; min-height: 44px; border-radius: 0 18px 18px 0">
+                  <span style="width: 40px; height: 40px; border-radius: 20px; flex-shrink: 0; overflow: hidden; display: block"><img src="{{c.photo}}" alt="" width="40" height="40" style="width: 40px; height: 40px; object-fit: cover; display: block"></span>
+                  <span style="font-size: 16px; font-weight: 500">{{c.pre}}<strong style="font-weight: 700; color: {{A}}">{{c.hit}}</strong>{{c.post}}</span>
+                </button>
+              </sc-if>
+            </li>
+          </sc-for>
+        </ul>
+        </div>
+      </section>
+    </div>
+  </sc-if>
+
+  <!-- CONTACT VIEW -->
+  <sc-if value="{{isDetail}}" hint-placeholder-val="{{false}}">
+    <div class="screen" style="position: absolute; inset: 0; background: #FFFFFF; display: flex; flex-direction: column; overflow: hidden">
+      <sc-if value="{{d.notHistory}}" hint-placeholder-val="{{true}}">
+        <div class="sc {{scrollCls}}" onScroll="{{onScroll}}" style="flex: 1; min-height: 0; overflow-y: auto">
+          <div style="position: relative; height: 400px; background: #2A3340; color: #FFFFFF; overflow: hidden">
+            <sc-if value="{{d.hasPhoto}}" hint-placeholder-val="{{true}}">
+              <img src="{{d.full}}" alt="" style="position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 50% 30%">
+            </sc-if>
+            <sc-if value="{{d.noPhoto}}" hint-placeholder-val="{{false}}">
+              <div style="position: absolute; inset: 0; display: flex; align-items: center; justify-content: center">
+                <svg width="96" height="96" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.7)" stroke-width="1.4" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="8" r="4"></circle><path d="M4 21a8 8 0 0 1 16 0"></path></svg>
+              </div>
+            </sc-if>
+            <div aria-hidden="true" style="position: absolute; inset: 0; background: linear-gradient(to bottom, rgba(10, 12, 16, 0.45) 0%, rgba(10, 12, 16, 0) 26%, rgba(10, 12, 16, 0) 52%, rgba(10, 12, 16, 0.72) 100%)"></div>
+            <button class="btn press" onClick="{{closeDetail}}" aria-label="Back" style="position: absolute; top: 48px; left: 16px; width: 44px; height: 44px; border-radius: 22px; background: rgba(10, 12, 16, 0.32); color: #FFFFFF; display: flex; align-items: center; justify-content: center">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M12 19l-7-7 7-7"></path></svg>
+            </button>
+            <div style="position: absolute; left: 24px; right: 24px; bottom: 26px">
+              <h1 style="margin: 0; font-size: 32px; font-weight: 600; letter-spacing: -0.025em; line-height: 1.1">{{d.name}}</h1>
+            </div>
+          </div>
+
+          <div style="display: flex; justify-content: space-between; padding: 20px 16px 4px">
+              <button class="btn press" onClick="{{d.call}}" aria-label="Call" style="display: flex">
+                <span style="width: 56px; height: 56px; border-radius: 28px; background: #157A44; color: #FFFFFF; display: flex; align-items: center; justify-content: center"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg></span>
+              </button>
+              <button class="btn press" aria-label="Message" style="display: flex">
+                <span style="width: 56px; height: 56px; border-radius: 28px; background: #E6ECF4; color: #14171C; display: flex; align-items: center; justify-content: center"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg></span>
+              </button>
+              <button class="btn press" aria-label="Video" style="display: flex">
+                <span style="width: 56px; height: 56px; border-radius: 28px; background: #E6ECF4; color: #14171C; display: flex; align-items: center; justify-content: center"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m16 10 5-3v10l-5-3"></path><rect x="2" y="6" width="14" height="12" rx="2"></rect></svg></span>
+              </button>
+              <sc-if value="{{d.isContact}}" hint-placeholder-val="{{true}}">
+                <button class="btn press" onClick="{{d.toggleFav}}" aria-pressed="{{d.favAttr}}" aria-label="Favourite" style="display: flex">
+                  <span style="width: 56px; height: 56px; border-radius: 28px; background: {{d.favBg}}; color: {{d.favFg}}; display: flex; align-items: center; justify-content: center"><svg width="24" height="24" viewBox="0 0 24 24" fill="{{d.favFill}}" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m12 2 3.1 6.3 6.9 1-5 4.9 1.2 6.8L12 17.8 5.8 21l1.2-6.8-5-4.9 6.9-1z"></path></svg></span>
+                </button>
+              </sc-if>
+              <sc-if value="{{d.notContact}}" hint-placeholder-val="{{false}}">
+                <button class="btn press" aria-label="Add to contacts" style="display: flex">
+                  <span style="width: 56px; height: 56px; border-radius: 28px; background: #E6ECF4; color: #14171C; display: flex; align-items: center; justify-content: center"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8z"></path><path d="M8 21a7 7 0 0 1 14 0"></path><path d="M5 8v6M2 11h6"></path></svg></span>
+                </button>
+              </sc-if>
+            </div>
+
+          <div style="margin: 16px; border-radius: 34px; background: #F2F5F9; overflow: hidden">
+            <sc-for list="{{d.numbers}}" as="n" hint-placeholder-count="2">
+              <sc-if value="{{n.divider}}" hint-placeholder-val="{{false}}"><div aria-hidden="true" style="height: 1px; margin: 0 20px; background: #E1E6EE"></div></sc-if>
+              <button class="btn row" onClick="{{n.call}}" aria-label="Call {{n.label}} {{n.value}}" style="width: 100%; display: flex; align-items: center; gap: 14px; padding: 14px 14px 14px 20px">
+                <span style="flex: 1; display: flex; flex-direction: column; gap: 2px">
+                  <span style="font-size: 13px; color: #5A6170">{{n.label}}</span>
+                  <span style="font-size: 16px; font-weight: 500; font-variant-numeric: tabular-nums">{{n.value}}</span>
+                </span>
+                <span style="width: 40px; height: 40px; border-radius: 20px; background: #E3F3EA; color: #157A44; display: flex; align-items: center; justify-content: center"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg></span>
+              </button>
+            </sc-for>
+          </div>
+
+          <sc-if value="{{d.hasInfo}}" hint-placeholder-val="{{true}}">
+            <div style="margin: 0 16px 16px; border-radius: 34px; background: #F2F5F9; padding: 6px 0">
+              <sc-for list="{{d.info}}" as="i" hint-placeholder-count="4">
+                <sc-if value="{{i.divider}}" hint-placeholder-val="{{false}}"><div aria-hidden="true" style="height: 1px; margin: 0 20px; background: #E1E6EE"></div></sc-if>
+                <div style="display: flex; align-items: flex-start; gap: 14px; padding: 12px 20px">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#5A6170" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex-shrink: 0; margin-top: 10px"><path d="{{i.icon}}"></path></svg>
+                  <span style="flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px">
+                    <span style="font-size: 13px; color: #5A6170">{{i.label}}</span>
+                    <span style="font-size: 16px; font-weight: 500; white-space: pre-line">{{i.value}}</span>
+                  </span>
+                </div>
+              </sc-for>
+            </div>
+          </sc-if>
+
+          <div style="margin: 0 16px 104px; border-radius: 34px; background: #F2F5F9; overflow: hidden">
+            <button class="btn row" onClick="{{openHistory}}" style="width: 100%; display: flex; align-items: center; gap: 14px; padding: 14px 18px 14px 14px">
+              <span style="width: 40px; height: 40px; border-radius: 20px; background: #E6ECF4; color: #14171C; display: flex; align-items: center; justify-content: center"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"></path><path d="M3 3v5h5"></path><path d="M12 7v5l3 2"></path></svg></span>
+              <span style="flex: 1; display: flex; flex-direction: column; gap: 2px">
+                <span style="font-size: 16px; font-weight: 500">Call history</span>
+                <span style="font-size: 13px; color: #5A6170">{{d.lastLine}}</span>
+              </span>
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#5A6170" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 6 6 6-6 6"></path></svg>
+            </button>
+          </div>
+        </div>
+        <button class="btn press" aria-label="Edit contact" style="position: absolute; right: 16px; bottom: 16px; z-index: 4; width: 56px; height: 56px; border-radius: 28px; background: {{A}}; color: #FFFFFF; display: flex; align-items: center; justify-content: center; box-shadow: 0 8px 22px rgba(14, 107, 102, 0.32)">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"></path><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"></path></svg>
+        </button>
+      </sc-if>
+
+      <sc-if value="{{d.isHistory}}" hint-placeholder-val="{{false}}">
+        <div class="fade" style="flex: 1; min-height: 0; display: flex; flex-direction: column">
+          <div style="display: flex; align-items: center; gap: 12px; padding: 48px 16px 12px">
+            <button class="btn press" onClick="{{closeHistory}}" aria-label="Back to contact" style="width: 44px; height: 44px; border-radius: 22px; display: flex; align-items: center; justify-content: center">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M12 19l-7-7 7-7"></path></svg>
+            </button>
+            <span style="width: 40px; height: 40px; border-radius: 20px; overflow: hidden; flex-shrink: 0; background: #E6ECF4; display: flex; align-items: center; justify-content: center">
+              <sc-if value="{{d.hasPhoto}}" hint-placeholder-val="{{true}}"><img src="{{d.photo}}" alt="" width="40" height="40" style="width: 40px; height: 40px; object-fit: cover; display: block"></sc-if>
+              <sc-if value="{{d.noPhoto}}" hint-placeholder-val="{{false}}"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#5A6170" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="8" r="4"></circle><path d="M4 21a8 8 0 0 1 16 0"></path></svg></sc-if>
+            </span>
+            <span style="display: flex; flex-direction: column; min-width: 0">
+              <h1 style="margin: 0; font-size: 20px; font-weight: 700; letter-spacing: -0.02em">Call history</h1>
+              <span style="font-size: 13px; color: #5A6170; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{d.name}}</span>
+            </span>
+          </div>
+          <ul class="sc {{scrollCls}}" onScroll="{{onScroll}}" style="list-style: none; margin: 0; padding: 0 0 40px; flex: 1; min-height: 0; overflow-y: auto">
+            <sc-for list="{{history}}" as="h" hint-placeholder-count="6">
+              <li>
+                <sc-if value="{{h.isHead}}" hint-placeholder-val="{{false}}">
+                  <h2 style="margin: 0; padding: 16px 24px 6px; font-size: 12px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: #5A6170">{{h.day}}</h2>
+                </sc-if>
+                <sc-if value="{{h.isRow}}" hint-placeholder-val="{{true}}">
+                  <div style="display: flex; align-items: center; gap: 14px; padding: 10px 24px">
+                    <span style="width: 36px; height: 36px; border-radius: 18px; background: {{h.chip}}; display: flex; align-items: center; justify-content: center; flex-shrink: 0"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="{{h.color}}" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="{{h.arrow}}"></path></svg></span>
+                    <span style="flex: 1; display: flex; flex-direction: column; gap: 2px">
+                      <span style="font-size: 16px; font-weight: 500; color: {{h.labelColor}}">{{h.label}}</span>
+                      <span style="font-size: 13px; color: #5A6170">{{h.time}}</span>
+                    </span>
+                    <span style="font-size: 14px; color: #5A6170; font-variant-numeric: tabular-nums">{{h.dur}}</span>
+                  </div>
+                </sc-if>
+              </li>
+            </sc-for>
+          </ul>
+        </div>
+      </sc-if>
+    </div>
+  </sc-if>
+
+  <!-- DIALER -->
+  <sc-if value="{{isDialer}}" hint-placeholder-val="{{false}}">
+    <div class="screen" style="position: absolute; inset: 0; box-sizing: border-box; background: #FFFFFF; display: flex; flex-direction: column; padding: 52px 0 40px">
+      <div style="display: flex; align-items: center; justify-content: space-between; padding: 0 12px 0 8px">
+        <button class="btn press" onClick="{{back}}" aria-label="Back" style="width: 44px; height: 44px; display: flex; align-items: center; justify-content: center">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M12 19l-7-7 7-7"></path></svg>
+        </button>
+        <h1 style="margin: 0; font-size: 17px; font-weight: 600">Dial</h1>
+        <button class="btn press" onClick="{{toSearch}}" aria-label="Search contacts" style="width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; color: #5A6170">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-3.5-3.5"></path></svg>
+        </button>
+      </div>
+      <div style="display: flex; align-items: center; justify-content: center; padding: 24px 24px 6px; min-height: 52px">
+        <output aria-live="polite" style="font-size: 38px; font-weight: 400; letter-spacing: 0.02em; font-variant-numeric: tabular-nums">{{display}}</output>
+      </div>
+      <sc-if value="{{empty}}" hint-placeholder-val="{{false}}">
+        <p style="margin: 0; text-align: center; font-size: 14px; color: #5A6170">Enter a number</p>
+      </sc-if>
+      <ul style="list-style: none; margin: 10px 20px 0; padding: 0; display: flex; flex-direction: column; gap: 6px; flex: 1; min-height: 0; overflow: hidden">
+        <sc-for list="{{matches}}" as="c" hint-placeholder-count="2">
+          <li>
+            <button class="btn press" onClick="{{c.call}}" aria-label="Call {{c.name}}" style="width: 100%; display: flex; align-items: center; gap: 12px; padding: 10px 12px; border-radius: 18px; background: #F2F3F5">
+              <span style="width: 40px; height: 40px; border-radius: 20px; flex-shrink: 0; overflow: hidden; display: block"><img src="{{c.photo}}" alt="" width="40" height="40" style="width: 40px; height: 40px; object-fit: cover; display: block"></span>
+              <span style="display: flex; flex-direction: column; gap: 2px">
+                <span style="font-size: 15px; font-weight: 600">{{c.name}}</span>
+                <span style="font-size: 13px; color: #5A6170; font-variant-numeric: tabular-nums">{{c.local}}</span>
+              </span>
+            </button>
+          </li>
+        </sc-for>
+      </ul>
+      <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px 0; padding: 0 40px; justify-items: center">
+        <sc-for list="{{keys}}" as="k" hint-placeholder-count="12">
+          <button class="btn key" onClick="{{k.press}}" aria-label="{{k.aria}}" style="width: 78px; height: 78px; border-radius: 39px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; text-align: center">
+            <span style="font-size: 32px; font-weight: 400; line-height: 1">{{k.d}}</span>
+            <span style="font-size: 10px; font-weight: 600; letter-spacing: 0.14em; color: #5A6170; min-height: 12px">{{k.l}}</span>
+          </button>
+        </sc-for>
+      </div>
+      <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); padding: 16px 40px 0; justify-items: center; align-items: center">
+        <span></span>
+        <button class="btn press" onClick="{{dial}}" aria-label="Call {{display}}" style="width: 78px; height: 78px; border-radius: 39px; background: #157A44; color: #FFFFFF; display: flex; align-items: center; justify-content: center">
+          <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
+        </button>
+        <button class="btn key" onClick="{{erase}}" aria-label="Delete last digit" style="width: 56px; height: 56px; border-radius: 28px; color: #5A6170; display: flex; align-items: center; justify-content: center">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 4H8l-7 8 7 8h13a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2z"></path><path d="m18 9-6 6M12 9l6 6"></path></svg>
+        </button>
+      </div>
+    </div>
+  </sc-if>
+
+  <!-- IN CALL -->
+  <sc-if value="{{isCall}}" hint-placeholder-val="{{false}}">
+    <div class="screen" style="position: absolute; inset: 0; box-sizing: border-box; overflow: hidden; background: #1E2530; color: {{c.text}}; display: flex; flex-direction: column; padding: 76px 24px 56px 32px">
+      <sc-if value="{{c.hasBg}}" hint-placeholder-val="{{true}}">
+        <img src="{{c.bg}}" alt="" style="position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; filter: {{c.filter}}">
+      </sc-if>
+      <div aria-hidden="true" style="position: absolute; inset: 0; background: {{c.wash}}"></div>
+      <div aria-hidden="true" style="position: absolute; left: 0; right: 0; bottom: 0; height: 380px; background: linear-gradient(to bottom, rgba(10, 12, 16, 0) 0%, rgba(10, 12, 16, 0.55) 45%, rgba(10, 12, 16, 0.8) 100%)"></div>
+
+      <div style="position: relative; display: flex; align-items: flex-start; justify-content: space-between; gap: 12px">
+        <div style="display: flex; flex-direction: column; gap: 6px; min-width: 0">
+          <p style="margin: 0; display: flex; align-items: center; gap: 8px; font-size: 15px; font-weight: 500; color: {{c.sub}}; font-variant-numeric: tabular-nums">
+            <span aria-hidden="true" style="width: 8px; height: 8px; border-radius: 4px; background: {{c.live}}"></span>{{timer}}
+          </p>
+          <h1 style="margin: 0; font-size: 36px; font-weight: 600; letter-spacing: -0.025em; line-height: 1.1">{{c.name}}</h1>
+          <p style="margin: 0; font-size: 15px; color: {{c.sub}}; font-variant-numeric: tabular-nums">{{c.num}}</p>
+        </div>
+        <button class="btn press" aria-label="Add to contacts" style="margin-top: 26px; width: 44px; height: 44px; flex-shrink: 0; border-radius: 22px; display: flex; align-items: center; justify-content: center">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8z"></path><path d="M8 21a7 7 0 0 1 14 0"></path><path d="M5 8v6M2 11h6"></path></svg>
+        </button>
+      </div>
+
+      <div style="position: relative; flex: 1; display: flex; align-items: center; justify-content: center">
+        <sc-if value="{{c.showAvatar}}" hint-placeholder-val="{{false}}">
+          <span style="width: 148px; height: 148px; border-radius: 74px; overflow: hidden; display: flex; align-items: center; justify-content: center; background: rgba(255, 255, 255, 0.12); box-shadow: 0 0 0 6px rgba(255, 255, 255, 0.14), 0 20px 50px rgba(0, 0, 0, 0.3)">
+            <sc-if value="{{c.hasPhoto}}" hint-placeholder-val="{{true}}"><img src="{{c.photo}}" alt="" width="148" height="148" style="width: 148px; height: 148px; object-fit: cover; display: block"></sc-if>
+            <sc-if value="{{c.noPhoto}}" hint-placeholder-val="{{false}}"><svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="8" r="4"></circle><path d="M4 21a8 8 0 0 1 16 0"></path></svg></sc-if>
+          </span>
+        </sc-if>
+      </div>
+
+      <div role="group" aria-label="Audio output" style="position: relative; display: flex; align-items: center; justify-content: space-between; height: 68px; box-sizing: border-box; border: 1.5px solid rgba(255, 255, 255, 0.5); border-radius: 34px; padding: 0 4.5px; margin-right: 8px">
+        <span aria-hidden="true" style="position: absolute; top: 4.5px; left: {{knobLeft}}; width: 56px; height: 56px; border-radius: 28px; background: #FFFFFF; box-shadow: 0 4px 14px rgba(0, 0, 0, 0.18); transition: left 360ms cubic-bezier(.3, 1.25, .5, 1)"></span>
+        <sc-for list="{{routes}}" as="r" hint-placeholder-count="3">
+          <button class="btn press" aria-label="{{r.label}}" aria-pressed="{{r.on}}" onClick="{{r.pick}}" style="position: relative; width: 56px; height: 56px; border-radius: 28px; color: {{r.fg}}; transition: color 200ms ease 80ms; display: flex; align-items: center; justify-content: center">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <sc-for list="{{r.paths}}" as="d" hint-placeholder-count="2"><path d="{{d}}"></path></sc-for>
+            </svg>
+          </button>
+        </sc-for>
+      </div>
+
+      <div style="position: relative; display: flex; align-items: center; justify-content: space-between; padding: 0 4px; margin: 40px 8px 0 0">
+        <button class="btn press" aria-label="Keypad" style="width: 60px; height: 60px; border-radius: 30px; color: #FFFFFF; display: flex; align-items: center; justify-content: center">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="6" cy="3.75" r="1.9"></circle><circle cx="12" cy="3.75" r="1.9"></circle><circle cx="18" cy="3.75" r="1.9"></circle><circle cx="6" cy="9.25" r="1.9"></circle><circle cx="12" cy="9.25" r="1.9"></circle><circle cx="18" cy="9.25" r="1.9"></circle><circle cx="6" cy="14.75" r="1.9"></circle><circle cx="12" cy="14.75" r="1.9"></circle><circle cx="18" cy="14.75" r="1.9"></circle><circle cx="12" cy="20.25" r="1.9"></circle></svg>
+        </button>
+        <button class="btn press" onClick="{{endCall}}" aria-label="End call" style="width: 76px; height: 76px; border-radius: 38px; background: #E5484D; color: #FFFFFF; display: flex; align-items: center; justify-content: center">
+          <svg width="34" height="34" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 9c-1.6 0-3.15.25-4.6.72v3.1c0 .39-.23.74-.56.9-.98.49-1.87 1.12-2.66 1.85-.18.18-.43.28-.7.28-.28 0-.53-.11-.71-.29L.29 13.08a.96.96 0 0 1-.29-.7c0-.28.11-.53.29-.71C3.34 8.78 7.46 7 12 7s8.66 1.78 11.71 4.67c.18.18.29.43.29.71 0 .28-.11.53-.29.71l-2.48 2.48c-.18.18-.43.29-.71.29-.27 0-.52-.11-.7-.28a11.27 11.27 0 0 0-2.67-1.85 1 1 0 0 1-.56-.9v-3.1C15.15 9.25 13.6 9 12 9z"></path></svg>
+        </button>
+        <button class="btn press" aria-label="Mute" aria-pressed="{{muteOn}}" onClick="{{toggleMute}}" style="width: 60px; height: 60px; border-radius: 30px; background: {{muteBg}}; color: {{muteFg}}; display: flex; align-items: center; justify-content: center">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 2l20 20"></path><path d="M18.9 13.2A7 7 0 0 0 19 12v-2"></path><path d="M5 10v2a7 7 0 0 0 12 5"></path><path d="M15 9.3V5a3 3 0 0 0-5.7-1.3"></path><path d="M9 9v3a3 3 0 0 0 5.1 2.1"></path><path d="M12 19v3"></path></svg>
+        </button>
+      </div>
+    </div>
+  </sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"accent":{"editor":"color","default":"#0E6B66","options":["#0E6B66","#3B4CCA","#B4532A","#14171C"]},"startScreen":{"editor":"enum","options":["home","contacts","dialer","call"],"default":"home"},"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  static CY = 631;
+
+  constructor(props) {
+    super(props);
+    const start = props.startScreen || 'home';
+    this.open = start === 'contacts';
+    this.state = { screen: start === 'contacts' ? 'home' : start, sheetOpen: this.open, prev: 'home', callerId: 'anna', query: '', num: '', route: 'phone', mute: false, seconds: 12, scrolling: false, detailId: null, detailNum: '', detailFrom: 'home', historyOpen: false, favIds: ['mom', 'aino', 'mei', 'rahul', 'omar', 'sofia', 'kwame', 'yuna'] };
+  }
+
+  componentDidUpdate() { if (this.wantFocus && this.input) { this.wantFocus = false; this.input.focus(); } }
+  componentDidMount() {
+    this.tick = setInterval(() => { if (this.state.screen === 'call') this.setState({ seconds: this.state.seconds + 1 }); }, 1000);
+  }
+  componentWillUnmount() { clearInterval(this.tick); clearTimeout(this.scrollTimer); clearTimeout(this.settle); }
+
+  people() {
+    const B = id => 'blob/' + id + '.jpg';
+    return [
+      { id: 'aino', name: 'Aino Virtanen', num: '+358 40 555 0143', kind: 'Mobile', photo: B('b7c6b067377642ea952b991798bfc193'), full: B('5a994324ec7b12dc4d74aabd2edfb514') },
+      { id: 'anna', name: 'Anna Lindqvist', num: '+358 40 555 0157', kind: 'Mobile', photo: B('0a5540e11d67f61e2833edcf92ad71f2'), full: B('a783ab4225cbb738f08b6efc8e2a9f3b') },
+      { id: 'arif', name: 'Arif Rahman', num: '+358 45 555 0126', kind: 'Mobile', photo: B('f57301b184a7ca2af6fc0330c2c3c176'), full: B('c42485a27c6aaf6e84195f5fb0c87451') },
+      { id: 'dad', name: 'Dad', num: '+358 40 555 0102', kind: 'Mobile', photo: B('2cd25766a1f725fa42cb1c194c49133b'), full: B('058c388427392da1a60d584cc8325532') },
+      { id: 'joonas', name: 'Joonas Heikkilä', num: '+358 9 555 0164', kind: 'Work', photo: B('0f9bed1a6dda1409f0d56954a4fa8ac9'), full: B('2b12c3421b458045aa091f36fee2c83d') },
+      { id: 'kwame', name: 'Kwame Mensah', num: '+358 9 555 0153', kind: 'Work', photo: B('72e91a118ed9ba9316325ec1de8e3844'), full: B('bad805f93ae8cff3412d72fb3e62a216') },
+      { id: 'linh', name: 'Linh Nguyen', num: '+358 50 555 0137', kind: 'Mobile', photo: B('22b8e8e684999aee8724bf96ea2d5011'), full: B('d4538aac194ee93089d0049fca90e21a') },
+      { id: 'mei', name: 'Mei Chen', num: '+358 9 555 0188', kind: 'Work', photo: B('b81f38507671f7eba4d0fcb986da1225'), full: B('53a5792363553a40732effad8c006601') },
+      { id: 'mom', name: 'Mom', num: '+358 40 555 0101', kind: 'Mobile', photo: B('ce58c537133b38a3fd769ec4c3bd3170'), full: B('f669ace196814501135b33487388a41f') },
+      { id: 'omar', name: 'Omar Haddad', num: '+358 40 555 0115', kind: 'Mobile', photo: B('12a11ca440ee256b338414e6f08706da'), full: B('79657011730bbe3ed337bb37a7aa3085') },
+      { id: 'rahul', name: 'Rahul Sharma', num: '+358 44 555 0172', kind: 'Mobile', photo: B('c6a1cab29cb6ea5a09ba3ceea6de281e'), full: B('3f4131de185a7948c53db2400e34eed8') },
+      { id: 'sofia', name: 'Sofia Martínez', num: '+358 50 555 0190', kind: 'Mobile', photo: B('54f36a235b2abbe915665a370eb67421'), full: B('363c973ecdf186c1586cdea53e45038b') },
+      { id: 'tenzin', name: 'Tenzin Gurung', num: '+358 44 555 0181', kind: 'Mobile', photo: B('27460461b379b0bed950d93256c9c76a'), full: B('47bce1a7101adf8a8d4c78f8ffec6fd7') },
+      { id: 'vikram', name: 'Vikram Nair', num: '+358 50 555 0166', kind: 'Mobile', photo: B('c7a4bde15352dbce5dafde904a7f295c'), full: B('64b042681fbb7c79140922c45ea16f26') },
+      { id: 'yuna', name: 'Yuna Kim', num: '+358 45 555 0129', kind: 'Mobile', photo: B('00b7c9fcc618752116df858a89435ce5'), full: B('0294ea9894bae772d164a3deaed84956') }
+    ].map(p => ({ ...p, first: p.name.split(' ')[0], local: '0' + p.num.replace('+358', '').replace(/\s/g, '') }));
+  }
+
+  where() { const s = this.state.screen; return s === 'home' && this.open ? 'contacts' : s; }
+  go(screen) {
+    if (screen === 'contacts') { this.open = true; this.setState({ screen: 'home', sheetOpen: true, prev: 'home', scrolling: false }); return; }
+    if (screen === 'home') { this.open = false; this.setState({ screen: 'home', sheetOpen: false, prev: 'home', scrolling: false }); return; }
+    const s = this.where();
+    const prev = (screen === 'search' || screen === 'dialer') && s !== 'call' ? s : this.state.prev;
+    this.setState({ screen, prev, scrolling: false });
+  }
+  openDetail(id, num) {
+    this.setState({ screen: 'detail', detailFrom: this.where(), detailId: id || null, detailNum: num || '', historyOpen: false, scrolling: false });
+  }
+  call(id, unknownNum) {
+    const prev = this.state.screen === 'call' ? this.state.prev : this.where();
+    this.setState({ screen: 'call', prev, callerId: id || null, unknownNum: unknownNum || '', seconds: 0, mute: false, route: 'phone' });
+  }
+  snap(open) {
+    const sheet = this.sheet;
+    this.open = open;
+    if (sheet) {
+      sheet.style.transition = 'transform 420ms cubic-bezier(.22, 1, .36, 1)';
+      sheet.style.transform = `translate3d(0, ${open ? 0 : Component.CY}px, 0)`;
+      if (this.solid) { this.solid.style.transition = 'opacity 420ms cubic-bezier(.22, 1, .36, 1)'; this.solid.style.opacity = open ? '1' : '0'; }
+    }
+    if (this.handle) this.handle.style.backgroundColor = '#B6BCC6';
+    if (!open && this.list) this.list.scrollTo({ top: 0, behavior: 'smooth' });
+    if (!open) { if (this.input) this.input.blur(); if (this.state.query) this.setState({ query: '' }); }
+    clearTimeout(this.settle);
+    this.settle = setTimeout(() => { if (this.state.sheetOpen !== open) this.setState({ sheetOpen: open }); }, 430);
+  }
+
+  renderVals() {
+    const A = this.props.accent ?? '#0E6B66';
+    const S = this.state;
+    const P = this.people();
+    const by = Object.fromEntries(P.map(p => [p.id, p]));
+    const withCall = p => ({ ...p, call: () => this.call(p.id) });
+
+    // Home
+    const IN = 'M17 7 7 17M7 17h8M7 17V9', OUT = 'M7 17 17 7M17 7H9M17 7v8';
+    const rec = (id, type, meta, num) => {
+      const p = id ? by[id] : null;
+      return { name: p ? p.name : num, photo: p ? p.photo : '', hasPhoto: !!p, noPhoto: !p, meta, missed: type === 'missed',
+        arrow: type === 'out' ? OUT : IN, arrowColor: type === 'missed' ? '#C42B2B' : '#5A6170',
+        call: () => this.call(id, num), details: () => this.openDetail(id, num) };
+    };
+    const groups = [
+      { label: 'Today', rows: [rec('aino', 'missed', 'Missed · Mobile · 10:42'), rec('rahul', 'in', 'Mobile · 09:15'), rec(null, 'out', 'Finland · 08:02', '+358 40 555 0198')] },
+      { label: 'Yesterday', rows: [rec('mei', 'out', 'Work · 18:30'), rec('mom', 'in', 'Mobile · 12:05')] },
+      { label: 'Earlier', rows: [rec('omar', 'missed', 'Missed (2) · Mobile · Tue'), rec('sofia', 'out', 'Mobile · Tue'), rec('kwame', 'in', 'Work · Mon'), rec('yuna', 'out', 'Mobile · Sun'), rec('anna', 'in', 'Mobile · Sat')] }
+    ];
+    const ring = () => 'none';
+    const dockFavs = S.favIds.slice(0, 4).map((id, n) => ({ ...withCall(by[id]), ring: ring(n, '#FFFFFF') }));
+    const favs = S.favIds.map((id, n) => ({ ...withCall(by[id]), ring: ring(n, '#FFFFFF') }));
+    const moreFavs = favs.slice(4);
+
+    // Contacts
+    const sorted = [...P].sort((a, b) => a.name.localeCompare(b.name, 'fi'));
+    const rows = [];
+    let last = '';
+    const q0 = (S.query || '').trim().toLowerCase();
+    sorted.forEach(p => {
+      if (q0) {
+        let at = -1, pos = 0;
+        for (const w of p.name.split(' ')) { if (w.toLowerCase().startsWith(q0)) { at = pos; break; } pos += w.length + 1; }
+        if (at < 0) return;
+        rows.push({ isHead: false, isRow: true, ...withCall(p), pre: p.name.slice(0, at), hit: p.name.slice(at, at + q0.length), post: p.name.slice(at + q0.length) });
+        return;
+      }
+      const L = p.name[0].toUpperCase();
+      if (L !== last) { rows.push({ isHead: true, isRow: false, letter: L }); last = L; }
+      rows.push({ isHead: false, isRow: true, ...withCall(p), pre: p.name, hit: '', post: '' });
+    });
+
+    // Search
+    const q = (S.query || '').trim().toLowerCase();
+    const results = [];
+    sorted.forEach(p => {
+      let at = -1;
+      if (!q) at = 0;
+      else { let pos = 0; for (const w of p.name.split(' ')) { if (w.toLowerCase().startsWith(q)) { at = pos; break; } pos += w.length + 1; } }
+      if (at < 0) return;
+      const len = q.length;
+      results.push({ ...withCall(p), meta: p.kind + ' · ' + p.num, pre: p.name.slice(0, at), hit: p.name.slice(at, at + len), post: p.name.slice(at + len) });
+    });
+    const key = (label, o = {}) => ({ label, flex: o.flex || '1 1 0', max: o.max || '36px', bg: o.bg || '#FFFFFF', fg: o.fg || '#14171C', size: o.size || '18px' });
+    const letters = r => r.split('').map(c => key(c));
+    const keyRows = [
+      letters('qwertyuiopå'), letters('asdfghjklöä'),
+      [key('⇧', { flex: '1.4 1 0', max: '50px', bg: '#ABB2BC' })].concat(letters('zxcvbnm'), [key('⌫', { flex: '1.4 1 0', max: '50px', bg: '#ABB2BC' })]),
+      [key('123', { flex: '1.6 1 0', max: '60px', bg: '#ABB2BC', size: '15px' }), key('space', { flex: '6 1 0', max: '220px', size: '15px' }), key('Search', { flex: '2 1 0', max: '84px', bg: A, fg: '#FFFFFF', size: '15px' })]
+    ];
+
+    // Dialer
+    const n = S.num;
+    const matches = n ? P.filter(p => p.local.includes(n)).slice(0, 2).map(p => ({ ...withCall(p), local: p.local.replace(/^(\d{3})(\d{3})(\d+)$/, '$1 $2 $3') })) : [];
+    const display = n.length > 3 ? (n.slice(0, 3) + ' ' + n.slice(3, 6) + (n.length > 6 ? ' ' + n.slice(6) : '')) : n;
+    const Ltr = { '2': 'ABC', '3': 'DEF', '4': 'GHI', '5': 'JKL', '6': 'MNO', '7': 'PQRS', '8': 'TUV', '9': 'WXYZ', '0': '+' };
+    const keys = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '*', '0', '#'].map(d => ({
+      d, l: Ltr[d] || '', aria: d === '*' ? 'Star' : d === '#' ? 'Hash' : d,
+      press: () => this.setState({ num: (this.state.num + d).slice(0, 15) })
+    }));
+
+    // Call
+    const cp = S.callerId ? by[S.callerId] : null;
+    const isFull = !!(cp && cp.full);
+    const c = {
+      name: cp ? cp.name : (S.unknownNum || 'Unknown'),
+      num: cp ? cp.num : 'Mobile',
+      photo: cp ? cp.photo : '', hasPhoto: !!cp, noPhoto: !cp,
+      hasBg: !!cp, bg: cp ? (cp.full || cp.photo) : '',
+      filter: isFull ? 'none' : 'blur(28px) saturate(1.2)',
+      wash: isFull ? 'linear-gradient(to bottom, rgba(10, 12, 16, 0.6) 0%, rgba(10, 12, 16, 0.25) 22%, rgba(10, 12, 16, 0) 38%)' : 'rgba(10, 12, 16, 0.35)',
+      showAvatar: !isFull,
+      text: '#FFFFFF',
+      sub: 'rgba(255, 255, 255, 0.85)',
+      live: '#5ED394'
+    };
+    const mm = String(Math.floor(S.seconds / 60)).padStart(2, '0'), ss = String(S.seconds % 60).padStart(2, '0');
+    const defs = [
+      { id: 'bt', label: 'Bluetooth', paths: ['m7 7 10 10-5 5V2l5 5L7 17'] },
+      { id: 'phone', label: 'Phone', paths: ['M9 2h6a2 2 0 0 1 2 2v16a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2z', 'M11 18h2'] },
+      { id: 'speaker', label: 'Speaker', paths: ['M11 5 6 9H2v6h4l5 4V5z', 'M15.5 8.5a5 5 0 0 1 0 7', 'M19 5a10 10 0 0 1 0 14'] }
+    ];
+    const routes = defs.map(d => {
+      const on = S.route === d.id;
+      return { ...d, on: on ? 'true' : 'false', fg: on ? '#10131A' : '#FFFFFF', pick: () => this.setState({ route: d.id }) };
+    });
+    const idx = Math.max(0, defs.findIndex(d => d.id === S.route));
+
+    // Contact view + history
+    const dp = S.detailId ? by[S.detailId] : null;
+    const LOG = {
+      aino: [['missed', 'Today', '10:42', '']], rahul: [['in', 'Today', '09:15', '6 min']], mei: [['out', 'Yesterday', '18:30', '12 min']],
+      mom: [['in', 'Yesterday', '12:05', '24 min']], omar: [['missed', 'Tue', '14:10', ''], ['missed', 'Tue', '14:02', '']],
+      sofia: [['out', 'Tue', '17:45', '3 min']], kwame: [['in', 'Mon', '11:20', '8 min']], yuna: [['out', 'Sun', '20:15', '15 min']], anna: [['in', 'Sat', '16:40', '9 min']]
+    };
+    const seedOf = str => [...str].reduce((a, ch) => a + ch.charCodeAt(0), 0);
+    const logFor = id => {
+      if (!id) return [['out', 'Today', '08:02', '1 min']];
+      const sd = seedOf(id), types = ['out', 'in', 'out', 'missed', 'in', 'out'], days = ['3 Nov', '30 Oct', '24 Oct', '17 Oct'];
+      const extra = days.map((day, k) => {
+        const t = types[(sd + k) % types.length];
+        const hh = String(8 + ((sd + k * 5) % 12)).padStart(2, '0'), mm = String((sd * 7 + k * 13) % 60).padStart(2, '0');
+        return [t, day, hh + ':' + mm, t === 'missed' ? '' : (1 + ((sd + k * 3) % 28)) + ' min'];
+      });
+      return (LOG[id] || []).concat(extra);
+    };
+    const KIND = { missed: ['Missed call', '#C42B2B', '#FBE6E6', IN], in: ['Incoming call', '#14171C', '#E6ECF4', IN], out: ['Outgoing call', '#14171C', '#E6ECF4', OUT] };
+    const entries = logFor(S.detailId);
+    const history = [];
+    let lastDay = '';
+    entries.forEach(([t, day, time, dur]) => {
+      if (day !== lastDay) { history.push({ isHead: true, isRow: false, day }); lastDay = day; }
+      const k = KIND[t];
+      history.push({ isHead: false, isRow: true, label: k[0], labelColor: k[1], chip: k[2], arrow: k[3], color: t === 'missed' ? '#C42B2B' : '#3A414C', time, dur: dur || '—' });
+    });
+    const first = entries[0];
+    const isFav = !!(dp && S.favIds.includes(dp.id));
+    const EXTRA = {
+      aino: ['Nordlys Design', 'Product designer', 'Mannerheimintie 12 B 14\n00100 Helsinki', '14 March 1991', '+358 9 555 0144'],
+      anna: ['Kaleva Health', 'Physiotherapist', 'Fredrikinkatu 44 A 6\n00100 Helsinki', '2 August 1994', ''],
+      arif: ['Harbour Logistics', 'Operations lead', 'Itämerenkatu 3 C 21\n00180 Helsinki', '19 January 1989', '+358 9 555 0127'],
+      dad: ['', '', 'Koivukuja 7\n02600 Espoo', '30 June 1962', '+358 9 555 0103'],
+      joonas: ['Pohjola Software', 'Backend engineer', 'Hämeentie 61 D 40\n00500 Helsinki', '5 November 1993', '+358 9 555 0165'],
+      kwame: ['Baltic Freight Oy', 'Account manager', 'Tilkankatu 9 B 12\n00300 Helsinki', '23 April 1990', '+358 40 555 0152'],
+      linh: ['Aalto University', 'Researcher', 'Otakaari 18 A 3\n02150 Espoo', '11 December 1996', ''],
+      mei: ['Tilda Studio', 'Art director', 'Iso Roobertinkatu 20 B 8\n00120 Helsinki', '8 February 1992', '+358 40 555 0189'],
+      mom: ['', '', 'Koivukuja 7\n02600 Espoo', '17 September 1964', '+358 9 555 0103'],
+      omar: ['Kallio Coffee', 'Owner', 'Vaasankatu 15\n00500 Helsinki', '27 July 1988', '+358 9 555 0116'],
+      rahul: ['Fintrail Oy', 'Data analyst', 'Ruoholahdenkatu 4 A 9\n00180 Helsinki', '3 October 1995', '+358 9 555 0173'],
+      sofia: ['Hanko Architects', 'Architect', 'Bulevardi 28 C 15\n00120 Helsinki', '21 May 1990', ''],
+      tenzin: ['Helsinki City', 'Urban planner', 'Kumpulantie 2 B 7\n00520 Helsinki', '9 January 1991', '+358 9 555 0182'],
+      vikram: ['Northwind Robotics', 'Hardware engineer', 'Tekniikantie 14\n02150 Espoo', '16 March 1987', '+358 9 555 0167'],
+      yuna: ['Sävel Music School', 'Piano teacher', 'Runeberginkatu 33 A 5\n00100 Helsinki', '30 April 1997', '']
+    };
+    const ICON = {
+      email: 'M4 5h16a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1zM3 7l9 6 9-6',
+      work: 'M4 8h16v11H4zM9 8V5h6v3M4 13h16',
+      home: 'M12 21s-7-6.2-7-11a7 7 0 0 1 14 0c0 4.8-7 11-7 11zM12 12.5a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5z',
+      cake: 'M4 21h16M5 21v-8h14v8M12 13V9M12 6.5V5M9 13v-1M15 13v-1'
+    };
+    const ex = dp ? (EXTRA[dp.id] || ['', '', '', '', '']) : null;
+    const ascii = str => str.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[^a-z ]/g, '');
+    const numbers = (dp ? [[dp.kind, dp.num], [dp.kind === 'Work' ? 'Mobile' : (ex[0] ? 'Work' : 'Home'), ex[4]]] : [['Phone', S.detailNum]])
+      .filter(([, v]) => v).map(([label, value], k) => ({ label, value, divider: k > 0, call: () => this.call(dp ? dp.id : null, value) }));
+    const infoRaw = dp ? [
+      ['Email', dp.id === 'mom' || dp.id === 'dad' ? '' : ascii(dp.name).split(' ').join('.') + '@example.com', ICON.email],
+      ['Company', ex[0] ? ex[0] + (ex[1] ? ' · ' + ex[1] : '') : '', ICON.work],
+      ['Address', ex[2], ICON.home],
+      ['Birthday', ex[3], ICON.cake]
+    ] : [];
+    const info = infoRaw.filter(([, v]) => v).map(([label, value, icon], k) => ({ label, value, icon, divider: k > 0 }));
+    const d = {
+      name: dp ? dp.name : (S.detailNum || 'Unknown'), sub: dp ? dp.kind + ' · ' + dp.num : 'Unknown number',
+      kind: dp ? dp.kind : 'Phone', num: dp ? dp.num : S.detailNum,
+      hasPhoto: !!dp, noPhoto: !dp, full: dp ? (dp.full || dp.photo) : '', photo: dp ? dp.photo : '',
+      isContact: !!dp, notContact: !dp,
+      favAttr: isFav ? 'true' : 'false', favBg: isFav ? '#FFF3D6' : '#E6ECF4', favFg: isFav ? '#B7791F' : '#14171C', favFill: isFav ? 'currentColor' : 'none', favLabel: isFav ? 'Favourite' : 'Favourite',
+      toggleFav: () => { if (!dp) return; const f = this.state.favIds; this.setState({ favIds: f.includes(dp.id) ? f.filter(x => x !== dp.id) : f.concat(dp.id) }); },
+      call: () => this.call(S.detailId, S.detailNum),
+      lastLine: first ? KIND[first[0]][0] + ' · ' + first[1] + ' ' + first[2] : 'No calls yet',
+      isHistory: !!S.historyOpen, notHistory: !S.historyOpen,
+      numbers, info, hasInfo: info.length > 0
+    };
+
+    this.accent = A;
+    return {
+      A,
+      isHome: S.screen === 'home', isContacts: S.screen === 'contacts', isSearch: S.screen === 'search', isDialer: S.screen === 'dialer', isCall: S.screen === 'call', isDetail: S.screen === 'detail',
+      d, history,
+      openHistory: () => this.setState({ historyOpen: true, scrolling: false }),
+      closeHistory: () => this.setState({ historyOpen: false, scrolling: false }),
+      closeDetail: () => this.go(this.state.detailFrom || 'home'),
+      groups, dockFavs, favs, moreFavs, rows,
+      sheetY: S.sheetOpen ? 0 : Component.CY, listOverflow: S.sheetOpen ? 'auto' : 'hidden',
+      sheetLabel: S.sheetOpen ? 'Collapse contacts' : 'Expand contacts', sheetOpenAttr: S.sheetOpen ? 'true' : 'false',
+      toggleSheet: () => this.snap(!this.open),
+      query: S.query, onQuery: e => this.setState({ query: e.target.value }),
+      hasQuery: !!S.query, notSearching: !q0, noResults: !!q0 && rows.length === 0,
+      clearQuery: () => { this.setState({ query: '' }); if (this.input) this.input.focus(); },
+      onSearchFocus: () => { if (!this.open) this.snap(true); },
+      setInput: el => { this.input = el; },
+      results, countLabel: results.length === 1 ? '1 contact' : results.length + ' contacts', keyRows,
+      display: display || ' ', empty: !n, matches, keys,
+      erase: () => this.setState({ num: this.state.num.slice(0, -1) }),
+      dial: () => { if (this.state.num) this.call(null, display); },
+      c, timer: mm + ':' + ss, routes,
+      knobLeft: `calc(4.5px + ${idx} * (100% - 65px) / 2)`,
+      muteOn: S.mute ? 'true' : 'false', muteBg: S.mute ? '#FFFFFF' : 'transparent', muteFg: S.mute ? '#10131A' : '#FFFFFF',
+      toggleMute: () => this.setState({ mute: !this.state.mute }),
+      endCall: () => this.go(this.state.prev || 'home'),
+      toHome: () => this.go('home'), toContacts: () => this.snap(true), toSearch: () => { this.go('contacts'); this.wantFocus = true; }, toDialer: () => this.go('dialer'),
+      back: () => this.go(this.state.prev === 'contacts' ? 'contacts' : 'home'),
+      scrollCls: S.scrolling ? 'on' : '',
+      onScroll: () => {
+        if (!this.state.scrolling) this.setState({ scrolling: true });
+        clearTimeout(this.scrollTimer);
+        this.scrollTimer = setTimeout(() => this.setState({ scrolling: false }), 800);
+      },
+      setList: el => { this.list = el; },
+      setSolid: el => { this.solid = el; },
+      solidOpacity: S.sheetOpen ? 1 : 0,
+      setHandle: el => { this.handle = el; },
+      setSheet: el => { this.sheet = el; },
+      guardClick: e => { if (this.suppress) { e.preventDefault(); e.stopPropagation(); } },
+      onDown: e => this.onDown(e),
+      onListDown: e => { if (!this.open) this.onDown(e); },
+      listTouch: S.sheetOpen ? 'pan-y' : 'none'
+    };
+  }
+
+  onDown(e) {
+    if (e.button !== undefined && e.button !== 0) return;
+    const field = e.target && e.target.closest ? e.target.closest('input') : null;
+    if (field && this.state.query) return;
+    if (e.pointerType === 'mouse' && !field) e.preventDefault();
+    const sheet = this.sheet, handle = this.handle;
+    if (!sheet) return;
+    const CY = Component.CY;
+    const scale = (sheet.getBoundingClientRect().height / sheet.offsetHeight) || 1;
+    const startY = e.clientY;
+    const from = this.open ? 0 : CY;
+    let y = from, moved = false, raf = 0, lastY = e.clientY, lastT = performance.now(), vel = 0, lit = null;
+    clearTimeout(this.settle);
+    sheet.style.transition = 'none';
+    const solid = this.solid;
+    if (solid) solid.style.transition = 'none';
+    const paint = () => {
+      raf = 0;
+      sheet.style.transform = `translate3d(0, ${y}px, 0)`;
+      if (solid) solid.style.opacity = String(Math.min(1, Math.max(0, 1 - y / CY)));
+      const on = y < CY / 2;
+      if (handle && on !== lit) { lit = on; handle.style.backgroundColor = on ? this.accent : '#B6BCC6'; }
+    };
+    const move = ev => {
+      const d = (ev.clientY - startY) / scale;
+      if (Math.abs(d) > 6 && !moved) {
+        moved = true;
+        if (field) { field.blur(); const sel = window.getSelection && window.getSelection(); if (sel) sel.removeAllRanges(); }
+      }
+      let t = from + d;
+      if (t < 0) t *= 0.25;
+      if (t > CY) t = CY + (t - CY) * 0.25;
+      y = t;
+      const now = performance.now(), dt = now - lastT;
+      if (dt > 0) vel = 0.7 * ((ev.clientY - lastY) / scale / dt) + 0.3 * vel;
+      lastY = ev.clientY; lastT = now;
+      if (!raf) raf = requestAnimationFrame(paint);
+    };
+    const up = () => {
+      window.removeEventListener('pointermove', move);
+      window.removeEventListener('pointerup', up);
+      window.removeEventListener('pointercancel', up);
+      if (raf) cancelAnimationFrame(raf);
+      if (moved) this.snap(Math.abs(vel) > 0.35 ? vel < 0 : y < CY / 2);
+      this.suppress = moved;
+      setTimeout(() => { this.suppress = false; }, 60);
+    };
+    window.addEventListener('pointermove', move);
+    window.addEventListener('pointerup', up);
+    window.addEventListener('pointercancel', up);
+  }
+}
+</script>
+</body>
+</html>
